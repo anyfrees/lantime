@@ -14,7 +14,7 @@ using System.Windows.Forms;
 [assembly: AssemblyDescription("多源校准 · 局域网 NTP/SNTP 服务端")]
 [assembly: AssemblyCompany("chengkai")]
 [assembly: AssemblyCopyright("Copyright (c) 2026 chengkai")]
-[assembly: AssemblyVersion("1.0.3.0")]
+[assembly: AssemblyVersion("1.0.4.0")]
 namespace LanTime {
  public static class Program {
   public const string ServiceName="LanTimeNtp";

@@ -1,6 +1,6 @@
 ﻿# LanTime · 局域网时间站
 
-Windows 本地 NTP/SNTP 时间服务端，用于摄像头、NVR、监控平台和其他局域网设备校时。版本 1.0.3。
+Windows 本地 NTP/SNTP 时间服务端，用于摄像头、NVR、监控平台和其他局域网设备校时。版本 1.0.4。
 
 ![LanTime 运行总览](docs/overview.png)
 
@@ -12,8 +12,10 @@ Windows 本地 NTP/SNTP 时间服务端，用于摄像头、NVR、监控平台�
 
 ## 下载与版本选择
 
-- **安装版：** `LanTime-1.0.3-Setup.msi`。双击按 Windows 提示安装，提供开始菜单、桌面入口与卸载项。程序位于 Program Files，配置和日志位于 `%ProgramData%\LanTime`；启动界面请求管理员权限。卸载保留配置和日志。
-- **便携版：** `LanTime-1.0.3-Portable.zip`。完整解压后运行 `LanTime.exe`，配置和日志位于 EXE 同级 `data`，可随目录携带。
+**请使用 1.0.4 或更新版本。1.0.3 MSI 的运行库检测表缺失会导致安装报错 2228，已在本版修复。**
+
+- **安装版：** `LanTime-1.0.4-Setup.msi`。双击按 Windows 提示安装，提供开始菜单、桌面入口与卸载项。程序位于 Program Files，配置和日志位于 `%ProgramData%\LanTime`；启动界面请求管理员权限。卸载保留配置和日志。
+- **便携版：** `LanTime-1.0.4-Portable.zip`。完整解压后运行 `LanTime.exe`，配置和日志位于 EXE 同级 `data`，可随目录携带。
 - 两种版本都需要 .NET Framework 4.0 完整版或兼容的 4.x。安装包会检测运行库；不会静默下载、安装运行库或自动添加防火墙和后台服务。
 - 如果已经将便携版安装成 Windows 后台服务，请先在旧版界面卸载该服务，再切换到 MSI 安装版。安装版维护操作仅停止 / 删除指向该安装目录的 LanTime 服务。升级前请退出界面并停止后台服务；升级完成后在界面重新启动后台服务。
 - 源码：[GitHub](https://github.com/anyfrees/lantime) · [CNB](https://cnb.cool/nnu/lantime)。两个仓库使用相同提交同步。
@@ -167,6 +169,6 @@ LanTime.exe --upstream-check "D:\LanTime\upstream-results.txt"
 
 Windows 上执行 `powershell -ExecutionPolicy Bypass -File .\build.ps1` 构建应用。打包执行 `powershell -ExecutionPolicy Bypass -File .\package.ps1`，生成安装版 MSI、便携 ZIP 与 SHA256 校验值。
 
-打包脚本使用本机 .NET Framework C# 编译器、Windows Installer COM 与 `makecab.exe`，无须安装 Inno Setup / WiX。打包脚本需要 Windows PowerShell 5.1 或 PowerShell 7；应用仍使用 .NET 4.0 API，目标 Win7 及以上系统。`dist/verification` 保存本次功能和界面检查结果。`package.ps1 -SkipMsi` 仅生成便携版。
+打包脚本使用本机 .NET Framework C# 编译器、Windows Installer COM 与 `makecab.exe`，并强制执行 MSI 原生引擎预检，无须安装 Inno Setup / WiX。打包脚本需要 Windows PowerShell 5.1 或 PowerShell 7；应用仍使用 .NET 4.0 API，目标 Win7 及以上系统。`dist/verification` 保存本次功能和界面检查结果。`package.ps1 -SkipMsi` 仅生成便携版。
 
 安装包验收范围见 [发布校验记录](docs/RELEASE-VERIFICATION.md)。

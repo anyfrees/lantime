@@ -1,4 +1,11 @@
-﻿# v1.0.3
+﻿# v1.0.4
+
+- 修复 MSI 安装时错误 2228：补全 AppSearch 使用的 Signature、CompLocator、IniLocator、DrLocator 标准表。
+- 打包后强制执行原生 Windows Installer 引擎预检，覆盖运行库检测与安装目录计算；旧版 1.0.3 安装包会被该预检直接拒绝。
+- 在当前 Windows 11 上完成真正的系统安装、快捷方式校验、安装后 74 项功能检查、修复安装、卸载和重新安装验证；安装日志与校验结果保存在本地 dist/verification。
+- 保留本机自动校时、圆角界面、便携版和安装版数据目录行为。
+
+# v1.0.3
 
 - 新增原生 Windows MSI 安装版与独立便携 ZIP，由同一份应用源码构建。
 - 安装版使用 Program Files 存放程序，ProgramData 存放配置和日志，启动界面请求管理员权限；便携版保留同目录数据方式。

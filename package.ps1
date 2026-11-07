@@ -27,7 +27,11 @@ if(-not $SkipTests){
 }
 $portableZip=Join-Path $dist ('LanTime-'+$version+'-Portable.zip')
 Compress-Archive -LiteralPath $portable -DestinationPath $portableZip -Force
-if(-not $SkipMsi){& (Join-Path $root 'installer\build-msi.ps1') -PayloadDirectory $payload -OutputFile (Join-Path $dist ('LanTime-'+$version+'-Setup.msi')) -Version $version}
+if(-not $SkipMsi){
+    $msiFile=Join-Path $dist ('LanTime-'+$version+'-Setup.msi')
+    & (Join-Path $root 'installer\build-msi.ps1') -PayloadDirectory $payload -OutputFile $msiFile -Version $version
+    & (Join-Path $root 'installer\test-msi.ps1') -PackageFile $msiFile -ReportFile (Join-Path $evidence 'msi-preflight.txt')
+}
 $hashLines=Get-ChildItem -LiteralPath $dist -File | Where-Object {$_.Name -eq ('LanTime-'+$version+'-Portable.zip') -or $_.Name -eq ('LanTime-'+$version+'-Setup.msi')} | Sort-Object Name | ForEach-Object {((Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant())+'  '+$_.Name}
 [IO.File]::WriteAllLines((Join-Path $dist 'SHA256SUMS.txt'),$hashLines,[Text.Encoding]::ASCII)
 Write-Host ('Packages: '+$dist)
