@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace LanTime {
  public static class AppInfo {
-  public const string Version="1.0.4";
+  public const string Version="1.0.6";
   public const string Author="chengkai";
   public const string Website="https://nnu.cn";
   public const string Copyright="Copyright (c) 2026 chengkai";

@@ -1,7 +1,7 @@
 param(
     [string]$PayloadDirectory,
     [string]$OutputFile,
-    [string]$Version = '1.0.4'
+    [string]$Version = '1.0.6'
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
@@ -83,7 +83,7 @@ $properties = [ordered]@{
     ProductCode=$productCode; UpgradeCode=$upgradeCode; ProductName='LanTime 局域网时间站'; ProductVersion=$Version;
     ProductLanguage='2052'; Manufacturer='chengkai'; ALLUSERS='1'; INSTALLLEVEL='1';
     ARPCOMMENTS='多源 NTP 服务与本机自动校时'; ARPURLINFOABOUT='https://nnu.cn'; ARPHELPLINK='https://github.com/anyfrees/lantime';
-    ARPPRODUCTICON='LanTimeIcon'; ARPNOMODIFY='1'; SecureCustomProperties='OLDPRODUCTS;NEWERPRODUCTS;NETFRAMEWORK4;NETFRAMEWORK464;INSTALLFOLDER';
+    ARPPRODUCTICON='LanTimeIcon'; ARPNOMODIFY='1'; SecureCustomProperties='OLDPRODUCTS;NEWERPRODUCTS;NETFRAMEWORK4;NETFRAMEWORK464;LANTIMESERVICEIMAGEPATH;INSTALLFOLDER';
     REBOOT='ReallySuppress'; DefaultUIFont='Tahoma8'; MSIRESTARTMANAGERCONTROL='Disable';
 }
 foreach ($pair in $properties.GetEnumerator()) { Add-Row Property @('Property','Value') @($pair.Key,$pair.Value) }
@@ -146,6 +146,8 @@ Add-Row AppSearch @('Property','Signature_') @('NETFRAMEWORK4','Net4')
 Add-Row AppSearch @('Property','Signature_') @('NETFRAMEWORK464','Net464')
 Add-Row RegLocator @('Signature_','Root','Key','Name','Type') @('Net4',2,'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full','Install',2)
 Add-Row RegLocator @('Signature_','Root','Key','Name','Type') @('Net464',2,'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full','Install',18)
+Add-Row AppSearch @('Property','Signature_') @('LANTIMESERVICEIMAGEPATH','ExistingLanTimeService')
+Add-Row RegLocator @('Signature_','Root','Key','Name','Type') @('ExistingLanTimeService',2,'SYSTEM\CurrentControlSet\Services\LanTimeNtp','ImagePath',2)
 Add-Row LaunchCondition @('Condition','Description') @('Installed OR VersionNT >= 601','需要 Windows 7 或更新版本。')
 Add-Row LaunchCondition @('Condition','Description') @('Installed OR NETFRAMEWORK4 OR NETFRAMEWORK464','请先安装 .NET Framework 4.0 完整版或兼容的 4.x，再运行安装包。')
 Add-Row LaunchCondition @('Condition','Description') @('NOT NEWERPRODUCTS','已安装较新版本的 LanTime，请先卸载较新版本。')
@@ -157,8 +159,8 @@ $execute = @(
  @('FindRelatedProducts',$null,25),@('AppSearch',$null,50),@('LaunchConditions',$null,100),@('ValidateProductID',$null,700),
  @('CostInitialize',$null,800),@('FileCost',$null,900),@('CostFinalize',$null,1000),@('MigrateFeatureStates',$null,1200),
  @('InstallValidate',$null,1400),@('InstallInitialize',$null,1500),@('RemoveExistingProducts','OLDPRODUCTS',1510),
- @('ProcessComponents',$null,1600),@('UnpublishFeatures',$null,1800),@('StopOwnedService','NOT (REMOVE="ALL") OR UPGRADINGPRODUCTCODE',1900),
- @('RemoveOwnedService','REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE',1910),@('RemoveRegistryValues',$null,2600),@('RemoveShortcuts',$null,3200),@('RemoveFiles',$null,3500),@('RemoveFolders',$null,3600),
+ @('ProcessComponents',$null,1600),@('UnpublishFeatures',$null,1800),@('StopOwnedService','LANTIMESERVICEIMAGEPATH AND (NOT (REMOVE="ALL") OR UPGRADINGPRODUCTCODE)',1900),
+ @('RemoveOwnedService','LANTIMESERVICEIMAGEPATH AND REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE',1910),@('RemoveRegistryValues',$null,2600),@('RemoveShortcuts',$null,3200),@('RemoveFiles',$null,3500),@('RemoveFolders',$null,3600),
  @('CreateFolders',$null,3700),@('InstallFiles',$null,4000),@('CreateShortcuts',$null,4500),@('WriteRegistryValues',$null,5000),
  @('RegisterUser',$null,6000),@('RegisterProduct',$null,6100),@('PublishFeatures',$null,6300),@('PublishProduct',$null,6400),@('InstallFinalize',$null,6600)
 )

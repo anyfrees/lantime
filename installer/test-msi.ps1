@@ -24,6 +24,33 @@ try{
             if($status -ne 1){break}
         }
         Check ([bool]$session.Property('NETFRAMEWORK4') -or [bool]$session.Property('NETFRAMEWORK464')) 'native AppSearch found .NET Framework runtime'
+        $conditions=@{}
+        $actionView=$database.OpenView('SELECT `Action`,`Condition` FROM `InstallExecuteSequence`')
+        try{
+            $actionView.Execute()
+            while($row=$actionView.Fetch()){
+                $conditions[$row.StringData(1)]=$row.StringData(2)
+                [Runtime.InteropServices.Marshal]::FinalReleaseComObject($row)|Out-Null
+            }
+        }finally{$actionView.Close();[Runtime.InteropServices.Marshal]::FinalReleaseComObject($actionView)|Out-Null}
+        # Evaluate the actual packaged conditions using MSI's own condition engine.
+        # No service action is executed and no service is created for this test.
+        $scenarios=@(
+            @('fresh install without service','','','',0,0),
+            @('repair without service','','','',0,0),
+            @('uninstall without service','','ALL','',0,0),
+            @('upgrade removal without service','','ALL','{OLD-PRODUCT}',0,0),
+            @('install or repair with service','"C:\LanTime\LanTime.exe" --service','','',1,0),
+            @('uninstall with service','"C:\LanTime\LanTime.exe" --service','ALL','',0,1),
+            @('upgrade removal with service','"C:\LanTime\LanTime.exe" --service','ALL','{OLD-PRODUCT}',1,0)
+        )
+        foreach($scenario in $scenarios){
+            $session.Property('LANTIMESERVICEIMAGEPATH')=$scenario[1]
+            $session.Property('REMOVE')=$scenario[2]
+            $session.Property('UPGRADINGPRODUCTCODE')=$scenario[3]
+            Check ($conditions.ContainsKey('StopOwnedService') -and $session.EvaluateCondition($conditions['StopOwnedService']) -eq $scenario[4]) ($scenario[0]+': stop action condition')
+            Check ($conditions.ContainsKey('RemoveOwnedService') -and $session.EvaluateCondition($conditions['RemoveOwnedService']) -eq $scenario[5]) ($scenario[0]+': remove action condition')
+        }
     }
 }catch{$failures++;$results.Add('FAIL '+$_.Exception.Message)}
 finally{

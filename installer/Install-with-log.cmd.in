@@ -1,0 +1,20 @@
+@echo off
+setlocal
+set "LT_PACKAGE=%~dp0LanTime-@VERSION@-Setup.msi"
+set "LT_LOG=%TEMP%\LanTime-@VERSION@-install-%RANDOM%.log"
+set "LT_REPORT=%LT_LOG%.txt"
+if not exist "%LT_PACKAGE%" (
+ echo Please extract the complete ZIP before running this file.
+ pause
+ exit /b 2
+)
+echo Installing LanTime @VERSION@. Please accept the normal Windows administrator prompt.
+start /wait "" "%SystemRoot%\System32\msiexec.exe" /i "%LT_PACKAGE%" /L*V "%LT_LOG%"
+set "LT_RESULT=%ERRORLEVEL%"
+>"%LT_REPORT%" echo LanTime @VERSION@ installation result: %LT_RESULT%
+>>"%LT_REPORT%" echo Full log: %LT_LOG%
+"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "%~dp0Read-install-log.ps1" -LogPath "%LT_LOG%" -ReportPath "%LT_REPORT%" -Result %LT_RESULT%
+start "" notepad.exe "%LT_REPORT%"
+echo Result: %LT_RESULT%
+echo Full log: %LT_LOG%
+exit /b %LT_RESULT%

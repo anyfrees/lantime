@@ -14,7 +14,7 @@ using System.Windows.Forms;
 [assembly: AssemblyDescription("多源校准 · 局域网 NTP/SNTP 服务端")]
 [assembly: AssemblyCompany("chengkai")]
 [assembly: AssemblyCopyright("Copyright (c) 2026 chengkai")]
-[assembly: AssemblyVersion("1.0.4.0")]
+[assembly: AssemblyVersion("1.0.6.0")]
 namespace LanTime {
  public static class Program {
   public const string ServiceName="LanTimeNtp";
@@ -38,6 +38,8 @@ namespace LanTime {
     try{using(var process=Process.GetProcessById(parent))if(!process.WaitForExit(30000)){AppDialog.Show("旧界面尚未退出，请退出后重新启动。","LanTime");return 1;}}catch(ArgumentException){}
    }
    if(render) { using(var f=new MainForm(args[0]=="--render")) {f.Show();Application.DoEvents();if(args.Length>2)f.CapturePage(Int32.Parse(args[2]));if(args[0]=="--render-live"){var timer=Stopwatch.StartNew();while(timer.Elapsed.TotalSeconds<10){Application.DoEvents();Thread.Sleep(30);}}Tests.DumpView(f,Path.GetFullPath(args[1])+".layout.txt");Tests.Capture(f,Path.GetFullPath(args[1]));f.AllowExit=true;f.Close();}return 0; }
+   string otherService=OtherServiceExecutable();
+   if(otherService!=null){AppDialog.Show("软件已安装，但后台服务仍在使用原目录：\n"+otherService+"\n\n请先打开该目录的 LanTime，在服务设置中点击“卸载后台服务”，再启动新版并重新安装后台服务。\n原配置与日志不会被删除。","检测到原目录服务",MessageBoxButtons.OK,MessageBoxIcon.Information);return 0;}
    try {
     if((Store.InstalledLayout||Store.Load().AutoSetSystemTime&&!Installed())&&!IsAdministrator){Elevate("--wait-for-exit "+Process.GetCurrentProcess().Id);return 0;}
    }catch(System.ComponentModel.Win32Exception e){AppDialog.Show(e.NativeErrorCode==1223?"已取消管理员授权。本次继续提供局域网授时，本机自动校时需要管理员权限。":e.Message,"本机校时权限");}
@@ -65,14 +67,23 @@ namespace LanTime {
    string value=Environment.ExpandEnvironmentVariables(imagePath??"").Trim();if(value.StartsWith("\"")){int end=value.IndexOf('"',1);if(end<0)throw new ArgumentException("服务路径无效。");return Path.GetFullPath(value.Substring(1,end-1));}
    int exe=value.IndexOf(".exe",StringComparison.OrdinalIgnoreCase);if(exe<0)throw new ArgumentException("服务路径无效。");return Path.GetFullPath(value.Substring(0,exe+4));
   }
+  internal static bool OwnsService(string imagePath,string executable){return String.Equals(ServiceExecutable(imagePath),Path.GetFullPath(executable),StringComparison.OrdinalIgnoreCase);}
+  internal static string OtherServiceExecutable(){
+   try{using(var key=Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\"+ServiceName)){
+    if(key==null)return null;string image=Convert.ToString(key.GetValue("ImagePath"));return OwnsService(image,Exe)?null:ServiceExecutable(image);
+   }}catch(Exception e){Store.Log("服务目录检查失败："+e.Message);return null;}
+  }
+  internal static int MaintainService(string image,string target,Action stop,Action remove,bool uninstall,Action<string> log){
+   if(!OwnsService(image,target)){log("保留其他目录的 LanTime 服务："+ServiceExecutable(image));return 0;}
+   stop();if(uninstall)remove();return 0;
+  }
   static int InstallerServiceAction(string action,string target){
    try{
     if(!IsAdministrator)return 5;target=Path.GetFullPath(target);if(!String.Equals(Path.GetFileName(target),"LanTime.exe",StringComparison.OrdinalIgnoreCase))return 87;
     string image;using(var key=Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\"+ServiceName)){if(key==null)return 0;image=Convert.ToString(key.GetValue("ImagePath"));}
-    if(!String.Equals(ServiceExecutable(image),target,StringComparison.OrdinalIgnoreCase)){Store.Log("安装操作未触碰其他目录的 LanTime 服务。");return action=="--installer-stop"?183:0;}
-    using(var service=new ServiceController(ServiceName)){if(service.Status!=ServiceControllerStatus.Stopped){service.Stop();service.WaitForStatus(ServiceControllerStatus.Stopped,TimeSpan.FromSeconds(30));}}
-    if(action=="--installer-uninstall")RunTool(Path.Combine(Environment.SystemDirectory,"sc.exe"),"delete "+ServiceName);
-    return 0;
+    return MaintainService(image,target,
+     delegate{using(var service=new ServiceController(ServiceName)){if(service.Status!=ServiceControllerStatus.Stopped){service.Stop();service.WaitForStatus(ServiceControllerStatus.Stopped,TimeSpan.FromSeconds(30));}}},
+     delegate{RunTool(Path.Combine(Environment.SystemDirectory,"sc.exe"),"delete "+ServiceName);},action=="--installer-uninstall",Store.Log);
    }catch(Exception e){Store.Log("安装维护失败："+e.Message);return 1;}
   }
   static void Admin(string cmd) {

@@ -1,6 +1,6 @@
 ﻿# LanTime · 局域网时间站
 
-Windows 本地 NTP/SNTP 时间服务端，用于摄像头、NVR、监控平台和其他局域网设备校时。版本 1.0.4。
+Windows 本地 NTP/SNTP 时间服务端，用于摄像头、NVR、监控平台和其他局域网设备校时。版本 1.0.6。
 
 ![LanTime 运行总览](docs/overview.png)
 
@@ -12,10 +12,11 @@ Windows 本地 NTP/SNTP 时间服务端，用于摄像头、NVR、监控平台�
 
 ## 下载与版本选择
 
-**请使用 1.0.4 或更新版本。1.0.3 MSI 的运行库检测表缺失会导致安装报错 2228，已在本版修复。**
+**建议使用 1.0.6 或更新版本。1.0.3 MSI 缺少运行库检测表导致错误 2228；1.0.4 / 1.0.5 在检测到其他目录的 LanTime 后台服务时返回 183，导致 MSI 报错 1722。本版保留原服务并允许安装完成，不再把目录不同当成安装失败。**
 
-- **安装版：** `LanTime-1.0.4-Setup.msi`。双击按 Windows 提示安装，提供开始菜单、桌面入口与卸载项。程序位于 Program Files，配置和日志位于 `%ProgramData%\LanTime`；启动界面请求管理员权限。卸载保留配置和日志。
-- **便携版：** `LanTime-1.0.4-Portable.zip`。完整解压后运行 `LanTime.exe`，配置和日志位于 EXE 同级 `data`，可随目录携带。
+- **安装版：** `LanTime-1.0.6-Setup.msi`。双击按 Windows 提示安装，提供开始菜单、桌面入口与卸载项。程序位于 Program Files，配置和日志位于 `%ProgramData%\LanTime`；启动界面请求管理员权限。卸载保留配置和日志。
+- **带日志安装版：** `LanTime-1.0.6-Install.zip`。完整解压后运行 `Install-with-log.cmd`，正常安装并记录详细日志；结束自动打开结果摘要，日志保存在系统临时目录，不会自动上传。
+- **便携版：** `LanTime-1.0.6-Portable.zip`。完整解压后运行 `LanTime.exe`，配置和日志位于 EXE 同级 `data`，可随目录携带。
 - 两种版本都需要 .NET Framework 4.0 完整版或兼容的 4.x。安装包会检测运行库；不会静默下载、安装运行库或自动添加防火墙和后台服务。
 - 如果已经将便携版安装成 Windows 后台服务，请先在旧版界面卸载该服务，再切换到 MSI 安装版。安装版维护操作仅停止 / 删除指向该安装目录的 LanTime 服务。升级前请退出界面并停止后台服务；升级完成后在界面重新启动后台服务。
 - 源码：[GitHub](https://github.com/anyfrees/lantime) · [CNB](https://cnb.cool/nnu/lantime)。两个仓库使用相同提交同步。
@@ -37,7 +38,7 @@ Windows 本地 NTP/SNTP 时间服务端，用于摄像头、NVR、监控平台�
 - 必须安装 **.NET Framework 4.0 或兼容的 4.x**。Win7 原装通常不具备此运行库；Win10/11 通常已具备兼容的 4.x。
 - 原始 Win7 可安装 [.NET Framework 4.0 官方离线安装程序](https://www.microsoft.com/en-us/download/details.aspx?id=17718)。Win7 SP1 可按[微软系统要求](https://learn.microsoft.com/en-us/dotnet/framework/get-started/system-requirements)选用 .NET Framework 4.8。
 - 适合 1024×768 及以上桌面；窗口可以缩放，设置页可滚动。
-- 已在当前 Windows 11 / .NET Framework 4.x 环境完成编译、74 项功能和 47 项界面检查、真实 UDP 123 收发和外部 NTP 连接检查。
+- 已在当前 Windows 11 / .NET Framework 4.x 环境完成编译、80 项功能和 47 项界面检查、真实 UDP 123 收发和外部 NTP 连接检查。
 - **尚未在 Win7 实机或虚拟机中验收**。兼容性来自 .NET 4.0 API、AnyCPU 和 Win7 可用的系统调用约束，不能将其视为已完成 Win7 实机认证。
 - 已测试后台服务类的启动、状态写入和停止生命周期；没有在本机实际安装 SCM 服务、修改防火墙或执行开机启动验收。
 
