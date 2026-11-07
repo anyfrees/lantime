@@ -11,4 +11,3 @@ if errorlevel 1 exit /b 1
 copy /y "%~dp0LanTime.exe.config" "%~dp0release\LanTime.exe.config" >nul
 echo Built: %~dp0release\LanTime.exe
 exit /b 0
-

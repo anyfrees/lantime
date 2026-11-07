@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 $compiler = Join-Path $env:WINDIR 'Microsoft.NET\Framework\v4.0.30319\csc.exe'
 if (-not (Test-Path -LiteralPath $compiler)) { throw '.NET Framework 4.x C# compiler not found.' }
 $outDir = Join-Path $PSScriptRoot 'release'
@@ -9,4 +9,3 @@ $compilerArgs = @('/nologo','/target:winexe','/optimize+','/platform:anycpu','/c
 if ($LASTEXITCODE -ne 0) { throw "Build failed: $LASTEXITCODE" }
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'LanTime.exe.config') -Destination $outDir -Force
 Write-Host "Built: $outDir\LanTime.exe"
-

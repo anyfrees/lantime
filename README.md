@@ -15,7 +15,7 @@ Windows 本地 NTP/SNTP 时间服务端，用于摄像头、NVR、监控平台�
 - **安装版：** `LanTime-1.0.3-Setup.msi`。双击按 Windows 提示安装，提供开始菜单、桌面入口与卸载项。程序位于 Program Files，配置和日志位于 `%ProgramData%\LanTime`；启动界面请求管理员权限。卸载保留配置和日志。
 - **便携版：** `LanTime-1.0.3-Portable.zip`。完整解压后运行 `LanTime.exe`，配置和日志位于 EXE 同级 `data`，可随目录携带。
 - 两种版本都需要 .NET Framework 4.0 完整版或兼容的 4.x。安装包会检测运行库；不会静默下载、安装运行库或自动添加防火墙和后台服务。
-- 如果已经将便携版安装成 Windows 后台服务，请先在旧版界面卸载该服务，再切换到 MSI 安装版。安装版维护操作仅停止 / 删除指向该安装目录的 LanTime 服务。
+- 如果已经将便携版安装成 Windows 后台服务，请先在旧版界面卸载该服务，再切换到 MSI 安装版。安装版维护操作仅停止 / 删除指向该安装目录的 LanTime 服务。升级前请退出界面并停止后台服务；升级完成后在界面重新启动后台服务。
 - 源码：[GitHub](https://github.com/anyfrees/lantime) · [CNB](https://cnb.cool/nnu/lantime)。两个仓库使用相同提交同步。
 
 ## 便携版五分钟开始使用
